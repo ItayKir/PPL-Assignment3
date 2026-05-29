@@ -238,24 +238,24 @@ export const typeofProgram = (exp: Program, tenv: TEnv): Result<TExp> =>
 const typeCheckSequence = (exps: List<Exp>, env: TEnv): Result<TExp> => {
     
     if (isNonEmptyList<Exp>(exps)) {
-        const hd = first(exps);
-        const tl = rest(exps);  
+        const first_exp = first(exps);
+        const other_exps = rest(exps);  
         
         // if last expression, return the type
-        if (isEmpty(tl)) {
-            return typeofExp(hd, env);
+        if (isEmpty(other_exps)) {
+            return typeofExp(first_exp, env);
         }
         
         // Define expression
-        if (isDefineExp(hd)) {
-            return bind(typeofDefine(hd, env), _ => 
-                typeCheckSequence(tl, makeExtendTEnv([hd.var.var], [hd.var.texp], env))
+        if (isDefineExp(first_exp)) {
+            return bind(typeofDefine(first_exp, env), _ => 
+                typeCheckSequence(other_exps, makeExtendTEnv([first_exp.var.var], [first_exp.var.texp], env))
             );
         } 
 
         else {
-            return bind(typeofExp(hd, env), _ => 
-                typeCheckSequence(tl, env)
+            return bind(typeofExp(first_exp, env), _ => 
+                typeCheckSequence(other_exps, env)
             );
         }
     } else {
