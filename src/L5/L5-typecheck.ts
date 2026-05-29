@@ -104,11 +104,11 @@ export const typeofPrim = (p: PrimOp): Result<TExp> =>
     (p.op === 'display') ? makeOk(makeProcTExp([T()] , makeVoidTExp())) :
     (p.op === 'newline') ? makeOk(makeProcTExp([] , makeVoidTExp())) :
     (p.op === 'cons') ?
-        makeFailure("HW3 3.1 - Implement this branch") :
+        makeOk(makeProcTExp([T(), makeListTExp(T())], makeListTExp(T()))) :
     (p.op === 'car') ?
-        makeFailure("HW3 3.1 - Implement this branch") :
+        makeOk(makeProcTExp([makeListTExp(T())], T())) :
     (p.op === 'cdr') ?
-        makeFailure("HW3 3.1 - Implement this branch") :
+        makeOk(makeProcTExp([makeListTExp(T())], makeListTExp(T()))) :
     makeFailure(`Primitive not yet implemented: ${p.op}`);
 
 // Purpose: compute the type of an if-exp
@@ -246,7 +246,7 @@ const typeCheckSequence = (exps: List<Exp>, env: TEnv): Result<TExp> => {
             return typeofExp(first_exp, env);
         }
         
-        // Define expression
+        // Define expression and extend env
         if (isDefineExp(first_exp)) {
             return bind(typeofDefine(first_exp, env), _ => 
                 typeCheckSequence(other_exps, makeExtendTEnv([first_exp.var.var], [first_exp.var.texp], env))
