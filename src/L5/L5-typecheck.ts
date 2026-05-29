@@ -12,7 +12,7 @@ import { isProcTExp, makeBoolTExp, makeNumTExp, makeProcTExp, makeStrTExp, makeV
          makeFreshTVar as T,
          makeListTExp} from "./TExp";
 import { isEmpty, allT, first, rest, NonEmptyList, List, isNonEmptyList } from '../shared/list';
-import { Result, makeFailure, bind, makeOk, zipWithResult } from '../shared/result';
+import { Result, makeFailure, bind, makeOk, zipWithResult, mapv, mapResult } from '../shared/result';
 import { parse as p } from "../shared/parser";
 import { format } from '../shared/format';
 
@@ -218,7 +218,13 @@ export const typeofLetrec = (exp: LetrecExp, tenv: TEnv): Result<TExp> => {
 //   If typeof(exp.val, tenv) = texp
 //   Then typeof(exp) = void
 export const typeofDefine = (exp: DefineExp, tenv: TEnv): Result<VoidTExp> =>
-    makeFailure("HW3 2.1 - Implement this function");
+    bind(
+        typeofExp(exp.val, tenv),
+        (x: TExp) => mapv(checkEqualType(x, exp.var.texp, exp), () => makeVoidTExp())
+        )
+    ;
+
+    
 
 // Purpose: compute the type of a program
 // Thread the TEnv through top-level expressions. A define extends the TEnv
