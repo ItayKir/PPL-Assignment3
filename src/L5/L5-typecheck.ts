@@ -224,11 +224,41 @@ export const typeofDefine = (exp: DefineExp, tenv: TEnv): Result<VoidTExp> =>
         )
     ;
 
-    
+
+
 
 // Purpose: compute the type of a program
 // Thread the TEnv through top-level expressions. A define extends the TEnv
 // for the expressions that follow it; the program type is the type of the
 // last expression.
 export const typeofProgram = (exp: Program, tenv: TEnv): Result<TExp> =>
-    makeFailure("HW3 2.2 - Implement this function");
+    typeCheckSequence(exp.exps, tenv);
+
+// Helper function to recursively thread the environment through the sequence of expressions
+const typeCheckSequence = (exps: List<Exp>, env: TEnv): Result<TExp> => {
+    
+    if (isNonEmptyList<Exp>(exps)) {
+        const hd = first(exps);
+        const tl = rest(exps);  
+        
+        // if last expression, return the type
+        if (isEmpty(tl)) {
+            return typeofExp(hd, env);
+        }
+        
+        // Define expression
+        if (isDefineExp(hd)) {
+            return bind(typeofDefine(hd, env), _ => 
+                typeCheckSequence(tl, makeExtendTEnv([hd.var.var], [hd.var.texp], env))
+            );
+        } 
+
+        else {
+            return bind(typeofExp(hd, env), _ => 
+                typeCheckSequence(tl, env)
+            );
+        }
+    } else {
+        return makeFailure("Empty program");
+    }
+};
