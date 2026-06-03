@@ -274,5 +274,6 @@ const splitEquation = (eq: Equation): Equation[] =>
         R.zipWith(makeEquation,
                   cons(eq.left.returnTE, eq.left.paramTEs),
                   cons(eq.right.returnTE, eq.right.paramTEs)) :
-    // HW3 3.3.d - add missing branch
+    (T.isListTExp(eq.left) && T.isListTExp(eq.right)) ? 
+        [makeEquation(eq.left.itemTE, eq.right.itemTE)] :// HW3 3.3.d - add missing branch
     [];
