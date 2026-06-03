@@ -139,9 +139,21 @@ export const makeEquationsFromExp = (exp: A.Exp, pool: Pool): Opt.Optional<Equat
                                 [makeEquation(left, T.makeProcTExp(R.map((vd) => vd. texp, exp.args), ret))])) :
     A.isLitExp(exp) ?
         (V.isEmptySExp(exp.val) ?
-            Opt.makeNone() : // HW3 3.3.b - fix this branch
+            Opt.mapv(inPool(pool, exp), (parentType: T.TExp) => 
+            // Equation: parentType = List(Fresh Variable)
+            [makeEquation(parentType, T.makeListTExp(T.makeFreshTVar()))] 
+        ) : // HW3 3.3.b - fix this branch
         V.isCompoundSExp(exp.val) ?
-            Opt.makeNone() : // HW3 3.3.b - fix this branch
+            Opt.bind(inPool(pool, exp), (parentType: T.TExp) =>
+                            Opt.bind(inPool(pool, A.makeLitExp((exp.val as V.CompoundSExp).val1)), (headType: T.TExp) =>
+                                Opt.mapv(inPool(pool, A.makeLitExp((exp.val as V.CompoundSExp).val2)), (tailType: T.TExp) => [
+                                    // Equation 1: The whole list is a list of the head's type
+                                    makeEquation(parentType, T.makeListTExp(headType)),
+                                    // Equation 2: The tail is a list of the head's type
+                                    makeEquation(tailType, T.makeListTExp(headType))
+                                ])
+                            )
+            ) : // HW3 3.3.b - fix this branch
         isNumber(exp.val) ? Opt.mapv(inPool(pool, exp) , (left: T.TExp) =>
             [ makeEquation(left, T.makeNumTExp()) ]) :
         isBoolean(exp.val) ? Opt.mapv(inPool(pool, exp) , (left: T.TExp) =>
