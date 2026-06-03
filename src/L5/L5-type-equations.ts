@@ -256,7 +256,7 @@ const solve = (equations: Equation[], sub: S.Sub): Res.Result<S.Sub> => {
 const canUnify = (eq: Equation): boolean =>
     T.isProcTExp(eq.left) && T.isProcTExp(eq.right) ?
         (eq.left.paramTEs.length === eq.right.paramTEs.length) :
-    // HW3 3.3.c - add missing branch
+    T.isListTExp(eq.left) && T.isListTExp(eq.right) ? true : // HW3 3.3.c - add missing branch
     false;
 
 // Signature: splitEquation(equation)
