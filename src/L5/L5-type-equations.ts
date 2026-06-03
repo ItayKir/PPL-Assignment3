@@ -7,7 +7,7 @@ import * as V from "./L5-value";
 import * as T from "./TExp";
 import * as Res from "../shared/result";
 import * as Opt from "../shared/optional";
-import { isEmpty, first, rest, cons, isNonEmptyList } from "../shared/list";
+import { isEmpty, first, rest, cons, isNonEmptyList, Empty } from "../shared/list";
 import { parse as p } from "../shared/parser";
 import { format } from "../shared/format";
 import { isBoolean, isNumber, isString } from "../shared/type-predicates";
@@ -78,9 +78,9 @@ export const expToPool = (exp: A.Exp): Pool => {
         A.isAtomicExp(e) ? extendPool(e, pool) :
         A.isProcExp(e) ? extendPool(e, reducePool(findVars, e.body, reducePoolVarDecls(extendPoolVarDecl, e.args, pool))) :
         A.isLitExp(e) && V.isEmptySExp(e.val) ?
-            pool : // HW3 3.3.a - fix this branch
+            extendPool(e, pool) : // HW3 3.3.a - fix this branch
         A.isLitExp(e) && V.isCompoundSExp(e.val) ?
-            pool : // HW3 3.3.a - fix this branch
+            extendPool(e, reducePool(findVars, [A.makeLitExp(e.val.val1), A.makeLitExp(e.val.val2)], pool)) : // HW3 3.3.a - fix this branch
         A.isCompoundExp(e) ? extendPool(e, reducePool(findVars, A.expComponents(e), pool)) :
         makeEmptyPool();
     return findVars(exp, makeEmptyPool());
