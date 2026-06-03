@@ -104,11 +104,11 @@ export const typeofPrim = (p: PrimOp): Result<TExp> =>
     (p.op === 'display') ? makeOk(makeProcTExp([T()] , makeVoidTExp())) :
     (p.op === 'newline') ? makeOk(makeProcTExp([] , makeVoidTExp())) :
     (p.op === 'cons') ?
-        makeOk(makeProcTExp([T(), makeListTExp(T())], makeListTExp(T()))) :
+        ((t: TExp) => makeOk(makeProcTExp([t, makeListTExp(t)], makeListTExp(t))))(T()) :
     (p.op === 'car') ?
-        makeOk(makeProcTExp([makeListTExp(T())], T())) :
+        ((t: TExp) => makeOk(makeProcTExp([makeListTExp(t)], t)))(T()) :
     (p.op === 'cdr') ?
-        makeOk(makeProcTExp([makeListTExp(T())], makeListTExp(T()))) :
+        ((t: TExp) => makeOk(makeProcTExp([makeListTExp(t)], makeListTExp(t))))(T()) :
     makeFailure(`Primitive not yet implemented: ${p.op}`);
 
 // Purpose: compute the type of an if-exp
